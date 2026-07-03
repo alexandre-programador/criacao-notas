@@ -5,10 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Note;
 use App\Models\User;
 use App\Services\Operations;
-use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Crypt;
-use Illuminate\Support\Facades\Redirect;
 
 class MainController extends Controller
 {
@@ -17,7 +14,7 @@ class MainController extends Controller
         //load user's notes
         $id = session('user.id');
 
-        $notes = User::find($id)->notes()->get()->toArray();
+        $notes = User::find($id)->notes()->whereNull('deleted_at')->get()->toArray();
 
 
 
@@ -132,7 +129,41 @@ class MainController extends Controller
     {
 
         $id = Operations::decryptId($id);
-        echo "I'm deleting note with id = $id";
+
+        //load note
+        $note = Note::find($id);
+
+        //Show delete note confimation
+        return view('delete_note', ['note' => $note]);
+    }
+
+    public function deleteNoteConfirm($id)
+    {
+        //verifica se o id é desencriptado ou não
+        //check if $id is ecrypted
+        $id = Operations::decryptId($id);
+
+        //loado note
+        $note = Note::find($id);
+
+        //Registro será removido da base de dados
+        //1. hard delete
+        //$note->delete();
+
+        //2. soft delete
+        //$note->delete_at = date('Y:m:d H:i:s');
+        //$note->save();
+
+        // 3. Soft delete (property in mode)
+        $note->delete();
+
+        // 4. Hard delete (property in mode)
+        //$note->forceDelete();
+
+
+
+        //redirect to home
+        return redirect()->route('home');
 
     }
 
