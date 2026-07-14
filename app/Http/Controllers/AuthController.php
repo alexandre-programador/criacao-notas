@@ -78,11 +78,13 @@ class AuthController extends Controller
     }
 
 
-
     public function logout()
     {
         //logout from the application
         //limpa a sessão, remove o usuário da sessão e redireciona para a página de login
         session()->forget('user');
+
+        // Redireciona para a tela de login
+        return redirect('/login');
     }
 }
